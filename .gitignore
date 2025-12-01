@@ -1,0 +1,73 @@
+# Echo Notes AI - Git Ignore Configuration
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Configuration and secrets (NEVER commit these!)
+.env
+config.yaml
+!config.yaml.example
+*.log
+
+# Output directories
+outputs/
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Large media files (test audio samples should be small)
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+*.m4a
+
+# Placeholder files for testing
+!data/agenda.md
+!data/meeting.wav
+
+# Note: poetry.lock is intentionally tracked for reproducibility
+
+*.nemo
+.bmad/
+.github/

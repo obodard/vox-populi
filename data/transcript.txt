@@ -1,0 +1,143 @@
+00:00:00 — Leia: Alright everyone, let’s begin — we have forty-four minutes to decide a pragmatic path forward for selecting the best models and architecture for our transcription + summarization application. I want concrete options and real trade-offs by the end.
+00:00:18 — Lando: Sounds fair. I’ll be blunt: I want something that’s reliable, scales, and doesn’t cost a fortune. Pretty please with sugar on top.
+00:00:33 — Yoda: Reliable, scalable, cost-effective — three pillars these are. Focus we must.
+
+00:01:05 — Leia: First thing — user needs: bilingual support (English/French), diarization, extraction of action items and decisions, and reasonable latency. We can accept batch for v1 but want a path to near-real-time.
+00:01:28 — Lando: And don’t forget speaker attribution. If the summary says “you need to follow up,” users want to know who “you” is. Also, extract tasks as structured items.
+00:01:46 — Yoda: Structure for users, clarity it brings. Ambiguity, reduce we must.
+
+00:02:20 — Leia: On ASR candidates: Google Speech-to-Text v2 enterprise, Whisper (open-source, self-hosted or managed), and third-party like Rev.ai for reliability. For summarization: Gemini family, OpenAI family, and strong open-source models like Llama 3 or Mixtral if we host.
+00:02:48 — Lando: Whisper gives great bilingual robustness, but if we self-host we’ll need GPUs and ops. Cloud STT is easier operationally. For summarization, managed LLMs reduce maintenance but cost more per token.
+00:03:08 — Yoda: Trade-offs clear are. Simplicity versus control — pick wisely we will.
+
+00:03:50 — Leia: Let’s imagine two concrete pipelines: Hybrid — Whisper for transcription + managed LLM for summarization; and Native Cloud — Google STT + Gemini. For each we should evaluate accuracy, cost, latency, data residency, and implementation complexity.
+00:04:12 — Lando: Hybrid probably wins on raw transcription accuracy. Native Cloud wins on simplicity and compliance if we keep data in region. Hybrid can be done with Whisper running in Canada too, but ops cost rises.
+00:04:33 — Yoda: Ops cost weigh heavily. Hidden costs reveal themselves later they do.
+
+00:05:10 — Leia: On summarization quality: we need extractive + abstractive blend. Summaries that surface action items, decisions, owners, and short TL;DR. The evaluation should use automated metrics and human review — automated metrics to filter bad models, humans to validate true usefulness.
+00:05:33 — Lando: Agree — ROUGE and BERTScore are fine for quick signals, but the human rubric matters: correctness, conciseness, and actionability. I’d set human QA as the primary judge for acceptance.
+00:05:52 — Yoda: Human judgement, anchor it should be. Metrics alone, mislead they can.
+
+00:06:30 — Leia: For PoC dataset, Lando, can you collect 8–10 anonymized meetings: half English, half bilingual, mixed speaker counts, background noise, and at least a couple with strong cross-talk? We need messy, real data.
+00:06:50 — Lando: On it. I’ll scrub for PII and provide timestamps for segments with heavy overlap. I’ll also include meetings with varying formality — standups, technical reviews, and a few client calls.
+00:07:05 — Yoda: Diverse dataset, strengthen evaluation it will.
+
+00:07:40 — Leia: Success criteria proposal: ASR WER ≤ 10% average across dataset; diarization accuracy sufficient to map actions to the right speaker; summary quality ≥ 4/5 on human QA for the majority of tests; cost per minute below a threshold we’ll define once we have cloud pricing — maybe a target of $0.10–$0.25 per minute to start.
+00:08:05 — Lando: I like defined thresholds. Cost per minute depends on tokenization strategy for summarization — long meetings mean more tokens and chunking complexity. We need to simulate cost with sample transcripts before committing.
+00:08:25 — Yoda: Simulate cost, wise that is. Surprises, avoid we will.
+
+00:09:00 — Leia: Chunking strategy thoughts: feed full transcript to long-context model if available, otherwise chunk by time or by semantic boundaries and stitch summaries. Stitching must preserve cross-chunk context for action-item consolidation.
+00:09:25 — Lando: Semantic chunking is better than fixed-time chunking; use conversation-turn boundaries and speaker cues when possible. Also maintain a running memory buffer of extracted entities to de-duplicate action items across chunks.
+00:09:46 — Yoda: Memory buffer, helpful it is. Merge duplicates, reduce noise it will.
+
+00:10:20 — Leia: On model hallucination — a critical risk. If the model invents actions or attributions, legal/regulatory issues follow. We must design guardrails: verification step linking generated actions back to transcript snippets and confidence scores.
+00:10:45 — Lando: Yes — each extracted action should include the snippet and a confidence metric. If confidence is low, flag for human validation. Also keep raw transcript access for auditors.
+00:11:02 — Yoda: Transparency, gravely important it is. Trust, it builds.
+
+00:11:40 — Leia: Architecturally, how do we minimize latency while keeping cost low? Idea: run ASR in near-real-time streaming, produce intermediate segments, and run incremental summarization to update a live summary. Final pass with full transcript for quality. Thoughts?
+00:12:04 — Lando: Incremental summarization is great for UX — users see evolving summary. But incremental calls increase API usage, so we must balance frequency. Maybe incremental low-cost model for interim summaries, then high-quality pass offline.
+00:12:25 — Yoda: Balance frequency and cost, we must. Interim utility, preserve it will.
+
+00:13:00 — Leia: Data residency and compliance: we must ensure transcripts and models processing PII can be hosted in Canada. For managed models, we need assurances. Otherwise, self-host or use VPC Service Controls and CMEK.
+00:13:23 — Lando: If we use OpenAI or other US-based managed services, we’ll need to understand their Canadian hosting options or use proxies. Google Cloud can be kept in Canada. Whisper self-hosted in Canada is an option but requires ops.
+00:13:42 — Yoda: Control over data, key it is. Choose based on risk appetite we must.
+
+00:14:20 — Leia: Let’s discuss evaluation matrix columns now — accuracy, diarization, summary quality, latency, cost, ops complexity, data residency fit, vendor lock-in risk, and scalability. Each pipeline gets a score 1–5. We’ll weight accuracy and data residency higher.
+00:14:44 — Lando: Good. Put cost and ops complexity next, then the rest. For scoring, we need objective measures for most columns to avoid bias.
+00:14:58 — Yoda: Objective measures guide decisions. Emotion, set aside we will.
+
+00:15:35 — Leia: For diarization, do we want speaker labeling tied to identities or pseudonyms? If we tie to identities, we need a mapping step from meeting calendar attendees. Maybe default to pseudonyms plus option to map to directory identities when permitted.
+00:15:58 — Lando: Pseudonyms by default is safer. If the meeting integrates with calendars and users opt in, map to real names. That way we keep privacy by default.
+00:16:14 — Yoda: Privacy-first, wise that is.
+
+00:16:50 — Leia: On tooling: consider Vertex AI for unified model orchestration if we go GCP-native; use Kubernetes/GKE with GPU nodes for self-hosted Whisper/Llama runs; and use Pub/Sub for streaming pipelines. Thoughts on orchestration?
+00:17:12 — Lando: I like Pub/Sub and Dataflow for managed streaming. For self-hosted inference, use autoscaling groups for GPUs and a model-serving framework like Triton or Ray Serve. For managed LLMs, serverless endpoints are easiest.
+00:17:34 — Yoda: Autoscale we must. Spiky loads, handle them we will.
+
+00:18:10 — Leia: Logging and observability: we need WER logs, per-call latency, token usage, cost attribution, and hallucination incidents. Build an observability dashboard from day one.
+00:18:31 — Lando: Yes, and capture sample transcripts for model drift detection. Add alerts when WER or confidence drops below thresholds. We’ll also log anonymized error cases for model fine-tuning consideration.
+00:18:50 — Yoda: Monitor closely, adapt quickly.
+
+00:19:30 — Leia: Security controls: encryption in transit and at rest, role-based access, least privilege for human reviewers, and a robust key management strategy. If using cloud KMS, ensure keys reside in Canada.
+00:19:52 — Lando: Also plan for deletion flows—if users request deletion of meeting transcripts, we must revoke backups and model cache entries referencing them. That touches retention policies.
+00:20:12 — Yoda: Deletion flows implement we must. Respect user rights, we will.
+
+00:20:50 — Leia: On cost modeling: we should run a synthetic estimate using sample transcripts — measure token counts for summarization approaches, and processing time for ASR per minute. Lando, can you run a cost simulation with a few service combos: Whisper self-hosted (GPU cost), Google STT + Gemini Flash, and Google STT + Gemini Pro?
+00:21:14 — Lando: Yes — I’ll produce per-minute cost breakdowns including infra, API calls, storage, and ops. I’ll also present a sensitivity analysis for volumes from 10 to 1,000 hours per month.
+00:21:33 — Yoda: Sensitivity analysis, enlightening it will be.
+
+00:22:10 — Leia: For model selection criteria beyond metrics: long-term viability, vendor roadmap, and ecosystem support. Managed models with strong SLAs are attractive for business continuity. Open-source gives control but requires committed ops resources.
+00:22:34 — Lando: Also consider licensing: open-source Llama family has license terms and inference costs, some models restrict commercial use or have special terms. Evaluate legal implications early.
+00:22:52 — Yoda: Legal review, early involve we must.
+
+00:23:30 — Leia: Regarding UX, summaries should be short actionable bullets with a one-line TL;DR and an expandable section that includes the excerpted transcript. Users must be able to click an action item and jump to the audio timestamp. Implementing that crosslinking is key for adoption.
+00:23:56 — Lando: I’ll prototype a UI flow that shows live summaries and anchors to the audio player. That will be a selling point. The backend must return timestamps for each extracted item to enable it.
+00:24:15 — Yoda: Anchors to truth, useful they are.
+
+00:24:50 — Leia: On extraction logic: entity resolution will be needed — people, projects, dates, deadlines. Keep a running entity store per meeting to reduce fragmentation across chunks. We should also canonicalize variants (e.g., “Q4” vs “quarter four”).
+00:25:16 — Lando: Use a combination of NER models and lightweight rules for canonicalization. Allow custom entity dictionaries per organization to improve accuracy.
+00:25:33 — Yoda: Canonicalization, make it consistent.
+
+00:26:10 — Leia: Fine-tuning vs prompt engineering — do we intend to fine-tune models for our summarization style or rely purely on prompting? Fine-tuning provides consistency but adds complexity and cost. Prompting is quicker but less predictable.
+00:26:34 — Lando: For PoC, favor prompt engineering. If a managed LLM supports fine-tuning at reasonable cost, we can consider it in phase 2 for higher consistency, especially for action-item extraction.
+00:26:52 — Yoda: Phase approach sensible is. Iterate we will.
+
+00:27:30 — Leia: Error and fallback strategies: if summarization fails, provide raw transcript link and a short autogenerated extract using a simpler heuristic (keyword extraction + sentence scoring) so users still get value.
+00:27:53 — Lando: Yes — fallback to extractive heuristics is cheap and often salvageable. Also mark when fallback used so users know quality expectations.
+00:28:09 — Yoda: Fallbacks, safety nets they are.
+
+00:28:50 — Leia: Now, governance: who decides when a model goes to production? I propose a gate: technical benchmarks met, security review passed, and legal sign-off on data handling. Also a product owner verifies UX.
+00:29:14 — Lando: Agreed. Create a deployment checklist and an after-action review 30 days post-launch to measure drift and user satisfaction.
+00:29:33 — Yoda: Guardrails for launch, important they are.
+
+00:30:10 — Leia: Let’s role-assign concretely: Lando — dataset collection and initial ASR runs; Yoda — architecture diagrams, cost simulation assumptions, and ops plan; Leia — summarization evaluation, human QA rubric, and UX prototype. Does that division work?
+00:30:37 — Lando: Works for me — I’ll prioritize anonymization and edge cases.
+00:30:46 — Yoda: Duties accept I do.
+
+00:31:20 — Leia: Pilot metrics cadence: daily logs during initial bench week, weekly review for the following two weeks, and a consolidated report at week four with recommendations. Agreed?
+00:31:40 — Lando: Yes. Daily logs to catch regressions fast. I’ll automate baseline comparisons.
+00:31:51 — Yoda: Rapid feedback, helpful it is.
+
+00:32:30 — Leia: Regarding privacy: implement consent prompts and an opt-out for recording summaries in the product. Also include a transparency report showing what models we used and when. This helps with trust.
+00:32:54 — Lando: Good idea — show model version and processing location in the meeting metadata. That’ll help auditors.
+00:33:06 — Yoda: Transparency foster trust it does.
+
+00:33:45 — Leia: On long-term extensibility: consider adding features like sentiment tagging, speaker-level metrics (participation time), and trend analysis across meetings. Those are value-adds after core functionality.
+00:34:07 — Lando: Right — sentiment and participation metrics can be optional toggles due to their privacy implications. Make them configurable.
+00:34:22 — Yoda: Extend carefully, we will.
+
+00:35:00 — Leia: Any major blockers you foresee that would stop us from running the PoC?
+00:35:10 — Lando: Access to enough diverse recordings is the only real blocker. Once we have data, everything else is implementable. I’ll prioritize data gathering.
+00:35:24 — Yoda: Ops for self-hosting could slow things; prefer managed for faster PoC if data residency permits.
+
+00:35:55 — Leia: Let's pick the initial three pipelines to benchmark: (1) Whisper self-hosted in Canada + Gemini Flash for summarization, (2) Google STT v2 in Canada + Gemini Pro, and (3) Google STT v2 + GPT-4o (if residency okay). We'll score on our evaluation matrix and report.
+00:36:23 — Lando: I like that. It covers open-source control, cloud-native balance, and high-quality managed options.
+00:36:37 — Yoda: A balanced shortlist this is.
+
+00:37:15 — Leia: For the PoC, set concrete run sizes: each pipeline runs on the same set of 8–10 meetings, plus synthetic noisy subsets. We’ll measure WER per meeting, diarization errors, summary QA, latency, and cost per minute.
+00:37:40 — Lando: I’ll script uniform preprocessing and ensure identical inputs to each pipeline for fair comparison.
+00:37:54 — Yoda: Fairness in comparison, essential it is.
+
+00:38:30 — Leia: Communication: weekly syncs during the PoC and a shared dashboard. Also, Lando, please provide daily ingestion logs during the first week as you mentioned.
+00:38:47 — Lando: Will do. I’ll push logs to a shared dashboard and include a daily digest.
+00:38:58 — Yoda: Coordination, maintain we must.
+
+00:39:30 — Leia: Potential power moves post-PoC: if a managed LLM wins, negotiate enterprise pricing early; if self-hosted wins, invest in automation and autoscaling. Also explore hybrid caching — keep frequent summary prompts cached to reduce token costs.
+00:39:56 — Lando: Negotiation leverage matters — show projected volumes in our discussions to get better rates. For caching, we can memoize common prompts and reuse partial outputs intelligently.
+00:40:14 — Yoda: Leverage volume for better deals, wise.
+
+00:40:50 — Leia: Quick note on UI: we should allow users to edit auto-generated summaries and capture feedback to close the loop for continuous improvement — both for model prompts and for future training data.
+00:41:12 — Lando: Capture edits as labeled data — allow users to opt-in to improve models. That will speed up iterative improvement.
+00:41:26 — Yoda: Feedback loop, powerful it is.
+
+00:42:05 — Leia: Final administrative items: I’ll draft the evaluation matrix and success thresholds; Lando, deliver dataset and initial ASR outputs in 5 business days; Yoda, deliver architecture and cost assumptions in 5 business days. We reconvene in one week to review initial metrics.
+00:42:33 — Lando: Confirmed — five days, I’ll prioritize.
+00:42:42 — Yoda: Five days, prepare I will.
+
+00:43:10 — Leia: Anything else before we close?
+00:43:18 — Lando: One quick ask — include a simple demo script for stakeholders so they can see the UX early. I’ll help craft it.
+00:43:30 — Yoda: Demo script, good idea. Visualize value we must.
+
+00:43:50 — Leia: Great — thanks both. See you at the one-week review. Meeting adjourned.
+00:44:00 — Lando: Thanks — talk soon.
+00:44:00 — Yoda: May clarity guide the work.

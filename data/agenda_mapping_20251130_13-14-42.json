@@ -1,0 +1,68 @@
+{
+  "meeting_metadata": {
+    "date": "2025-11-25",
+    "attendees": [
+      "Yoda",
+      "Leia",
+      "Lando"
+    ],
+    "parsed_at": "2023-11-27T10:30:00Z"
+  },
+  "agenda_topics": [
+    {
+      "topic_id": "1",
+      "topic_title": "Introduction & Objectives (5 min) — Set context and desired outcomes.",
+      "duration_estimate": "5 min",
+      "transcript_sections": [
+        {
+          "text": "Well, I don't wish to see it any more, observed Phoebe, turning away her eyes. It is certainly very like the old portrait.\n",
+          "confidence": "low",
+          "reasoning": "The transcript content is not related to any of the agenda topics. It seems to be a fragment from a different context."
+        }
+      ]
+    },
+    {
+      "topic_id": "2",
+      "topic_title": "Requirements (10 min) — Define functional and non-functional needs.",
+      "duration_estimate": "10 min",
+      "transcript_sections": []
+    },
+    {
+      "topic_id": "3",
+      "topic_title": "Candidate Models (10 min) — Review ASR and LLM options.",
+      "duration_estimate": "10 min",
+      "transcript_sections": []
+    },
+    {
+      "topic_id": "4",
+      "topic_title": "Architecture Approaches (10 min) — Compare Google-native, hybrid, and open-source paths.",
+      "duration_estimate": "10 min",
+      "transcript_sections": []
+    },
+    {
+      "topic_id": "5",
+      "topic_title": "Evaluation Framework (10 min) — Establish technical, operational, and cost criteria.",
+      "duration_estimate": "10 min",
+      "transcript_sections": []
+    },
+    {
+      "topic_id": "6",
+      "topic_title": "PoC Planning (10 min) — Align on dataset, success metrics, and responsibilities.",
+      "duration_estimate": "10 min",
+      "transcript_sections": []
+    },
+    {
+      "topic_id": "7",
+      "topic_title": "Wrap-up (5 min) — Confirm decisions and next steps.",
+      "duration_estimate": "5 min",
+      "transcript_sections": []
+    }
+  ],
+  "unmapped_sections": [
+    {
+      "text": "Well, I don't wish to see it any more, observed Phoebe, turning away her eyes. It is certainly very like the old portrait.\n",
+      "note": "The transcript content is not related to any of the agenda topics. It seems to be a fragment from a different context."
+    }
+  ],
+  "error": null
+}

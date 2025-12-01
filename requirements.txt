@@ -1,0 +1,61 @@
+# Installation:
+# pip install nemo_toolkit --no-deps
+# pip install -r requirements.txt
+# pip install --only-binary=:all: texterrors
+
+# Core NeMo dependencies
+# Note: Install nemo_toolkit separately with: pip install nemo_toolkit --no-deps
+torch>=2.0
+numpy>=1.22,<2.0
+hydra-core<=1.3.2
+omegaconf<=2.3
+pytorch-lightning
+transformers
+librosa
+soundfile
+
+# Additional NeMo dependencies
+fsspec==2024.12.0
+protobuf~=5.29.5
+python-dateutil
+ruamel.yaml
+tensorboard
+text-unidecode
+wget
+wrapt
+onnx
+
+# Lightning and workflow dependencies
+lightning
+fiddle
+webdataset
+einops
+jiwer
+lhotse
+braceexpand
+cloudpickle
+overrides<8.0
+
+# NLP and tokenization
+sentencepiece
+pandas
+
+# NVIDIA logging
+nv-one-logger-core
+nv-one-logger-training-telemetry
+nv-one-logger-pytorch-lightning-integration
+
+# Additional dependencies
+datasets
+editdistance
+IPython
+matplotlib
+pydub
+
+# Text error handling and speaker diarization
+# Note: texterrors should be installed with: pip install --only-binary=:all: texterrors
+pyannote.core
+pyannote.metrics
+
+# Google ADK
+google-adk
