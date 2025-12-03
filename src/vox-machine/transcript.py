@@ -41,7 +41,7 @@ def split_audio_into_chunks(audio_file, chunk_size_ms=CHUNK_SIZE_MS):
     return chunk_files, temp_dir
 
 
-# convert_m4a_to_wav("CGI_2025Q4_opportunities_exploration.m4a", "CGI_2025Q4_opportunities_exploration.wav")
+# convert_m4a_to_wav("2086-149220-0033.wav.m4a", "2086-149220-0033.wav.wav")
 def check_gpu():
     global device
     # Check device availability and move model to GPU if available
