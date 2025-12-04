@@ -6,8 +6,9 @@ import torch
 from pydub import AudioSegment
 
 MODEL = "../../data/parakeet-tdt-0.6b-v3.nemo"
+# source_file="../../data/2086-149220-0033.wav"
+source_file="../../data/CGI_2025Q4_opportunities_exploration.m4a"
 
-# source_file="2086-149220-0033.wav"
 # Chunk size in milliseconds (5 minutes = 300000ms)
 CHUNK_SIZE_MS = 300000
 
@@ -41,7 +42,6 @@ def split_audio_into_chunks(audio_file, chunk_size_ms=CHUNK_SIZE_MS):
     return chunk_files, temp_dir
 
 
-# convert_m4a_to_wav("2086-149220-0033.wav.m4a", "2086-149220-0033.wav.wav")
 def check_gpu():
     global device
     # Check device availability and move model to GPU if available
@@ -52,17 +52,20 @@ def check_gpu():
     else:
         device = torch.device("cpu")
         print("Using CPU")
+    return device
 
 
 if __name__ == "__main__":
-    check_gpu()
+    device = check_gpu()
     # Load model from local file
     print(f"\nLoading model {MODEL}...")
     asr_model = nemo_asr.models.ASRModel.restore_from(restore_path=MODEL)
     asr_model = asr_model.to(device)
     print(f"Model loaded on: {device}")
+    
+    if source_file.lower().endswith(".m4a"):
+        convert_m4a_to_wav(source_file, source_file + "converted.wav")
 
-    # Split audio into chunks if file is large
     chunk_files, temp_dir = split_audio_into_chunks(source_file)
 
     print(f"\nTranscribing {len(chunk_files)} chunk(s)...\n")
@@ -97,11 +100,5 @@ if __name__ == "__main__":
         pass
 
     # Combine and display full transcription
-    print(f"\n{'=' * 80}")
-    print("FULL TRANSCRIPTION:")
-    print(f"{'=' * 80}\n")
     transcription = " ".join(full_transcription)
     print(transcription)
-    print(f"\n{'=' * 80}")
-    print(f"Total characters: {len(transcription)}")
-    print(f"{'=' * 80}\n")
